@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>影響空軍修護人員離職因素之研究 - 信效度檢測問卷</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+            scroll-behavior: smooth;
+        }
+        /* 美化捲軸 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9; /* slate-100 */
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #94a3b8; /* slate-400 */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b; /* slate-500 */
+        }
+
+        /* 自定義選項按鈕樣式 */
+        .choice-label {
+            transition: all 0.2s ease-in-out;
+        }
+        .choice-radio:checked + .choice-label {
+            border-color: #0ea5e9; /* sky-500 */
+            background-color: #f0f9ff; /* sky-50 */
+            color: #0c4a6e; /* sky-900 */
+            font-weight: 600;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transform: translateY(-2px);
+        }
+        .choice-radio:focus + .choice-label {
+             box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.3);
+        }
+        /* 用於 PNG 輸出的隱藏結果卡片 */
+        #png-output-area {
+            position: absolute;
+            left: -9999px; /* 移出可視區域外 */
+            top: auto;
+            width: 600px;
+            padding: 2rem;
+            background-color: white;
+        }
+        /* 題目卡片錯誤狀態樣式 */
+        .question-card-error {
+            border-color: #f87171 !important; /* red-400 */
+            box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.4);
+            animation: pulse-red 2s infinite;
+        }
+        @keyframes pulse-red {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.9; transform: scale(1.01); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 to-sky-100 text-slate-800 min-h-screen">
+
+    <div class="container mx-auto max-w-2xl p-4 sm:p-6 lg:p-8">
+        
+        <header class="text-center mb-6">
+            <h1 class="text-2xl sm:text-3xl font-bold text-sky-800 tracking-tight">『影響空軍修護人員離職因素之研究』<br class="sm:hidden"><span class="block mt-1 sm:inline">信效度檢測問卷</span></h1>
+            <div class="mt-6 text-base text-slate-600 max-w-2xl mx-auto text-left space-y-3 bg-white/60 backdrop-blur-sm p-5 sm:p-6 rounded-xl shadow-sm border border-slate-200/80">
+                <p>敬愛的先生/女士您好：</p>
+                <p>這是一份學術研究問卷，旨在檢測「影響空軍修護人員離職因素之研究」問卷題項的信度與效度。您的寶貴意見對本研究至關重要，所有填答資料僅作為學術分析之用，個人資料將被嚴格保密，請您安心填寫。</p>
+                <p class="font-semibold text-sky-800 pt-2">誠摯感謝您的撥冗參與！</p>
+            </div>
+            <div class="mt-6 text-sm text-slate-500">
+                <p>國立台北大學企業管理研究所</p>
+                <p>指導教授：劉仲矩 老師</p>
+                <p>研究生：張靖興 學生</p>
+            </div>
+        </header>
+
+        <!-- 進度條 -->
+        <div class="my-8 px-1">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-sm font-medium text-sky-700">作答進度</span>
+                <span id="progressText" class="text-sm font-semibold text-sky-700">0 / 15</span>
+            </div>
+            <div class="w-full bg-slate-200 rounded-full h-2.5">
+                <div id="progressBar" class="bg-sky-500 h-2.5 rounded-full transition-all duration-500 ease-out"></div>
+            </div>
+        </div>
+
+        <form id="questionnaireForm">
+            <div id="questionnaireBody" class="space-y-4">
+                <!-- 問卷題目將由 JavaScript 動態生成 -->
+            </div>
+            
+            <!-- 全域錯誤訊息提示 -->
+            <div id="globalWarning" class="hidden mt-6 mb-4 p-4 text-sm font-semibold text-red-800 rounded-lg bg-red-100 text-center" role="alert">
+              <!-- Warning message will be inserted here -->
+            </div>
+
+            <div class="mt-10 text-center">
+                <button type="submit" class="w-full sm:w-auto bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white font-bold py-3 px-12 rounded-full shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-slate-50 transition-all transform hover:scale-105 duration-300">
+                    <span class="flex items-center justify-center">
+                        <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        提交問卷
+                    </span>
+                </button>
+            </div>
+        </form>
+
+        <!-- 彈出式訊息 Modal -->
+        <div id="alertModal" class="fixed inset-0 bg-black bg-opacity-40 overflow-y-auto h-full w-full hidden z-50 transition-opacity duration-300" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+            <div class="flex items-center justify-center min-h-screen p-4">
+                <div id="modalDialog" class="relative mx-auto p-6 border w-full max-w-sm shadow-xl rounded-2xl bg-white transform transition-all duration-300 scale-95 opacity-0">
+                    <div class="text-center">
+                        <div id="modalIcon" class="mx-auto flex items-center justify-center h-16 w-16 rounded-full">
+                            <!-- Icon will be inserted here -->
+                        </div>
+                        <h3 id="modalTitle" class="text-xl leading-6 font-bold text-gray-900 mt-4"></h3>
+                        <div class="mt-2 px-2 py-3">
+                            <p id="modalMessage" class="text-base text-gray-600"></p>
+                        </div>
+                        <div id="modalActions" class="items-center px-4 py-3 space-y-2">
+                             <!-- Buttons will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 用於 PNG 輸出的隱藏容器 -->
+    <div id="png-output-area"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 問卷指標
+            const indicators = [
+                "勞役不均", "任務壓力", "職業傷害", "薪資待遇", "成就實現", 
+                "職涯發展", "社會認同", "期望落差", "權威壓迫", "同袍互動", 
+                "人力匱乏", "輕視專業", "家庭照顧", "就業市場", "政策疑慮"
+            ];
+
+            const form = document.getElementById('questionnaireForm');
+            const formBody = document.getElementById('questionnaireBody');
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            const globalWarning = document.getElementById('globalWarning');
+            
+            // 動態生成問卷題目
+            indicators.forEach((indicator, index) => {
+                const questionCard = document.createElement('div');
+                questionCard.id = `card_${index}`;
+                questionCard.className = 'bg-white shadow-md rounded-xl p-5 transition-all duration-300 hover:shadow-lg border border-transparent';
+                
+                questionCard.innerHTML = `
+                    <div class="flex items-start space-x-4">
+                        <span class="flex-shrink-0 text-lg font-bold text-sky-600 bg-sky-100 rounded-full h-8 w-8 flex items-center justify-center">${index + 1}</span>
+                        <div class="flex-grow">
+                            <p class="font-semibold text-slate-800 text-base">${indicator}</p>
+                            <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <input type="radio" id="agree_${index}" name="item_${index}" value="agree" class="sr-only choice-radio" required>
+                                    <label for="agree_${index}" class="choice-label w-full flex items-center justify-center p-3 text-slate-600 bg-slate-100 rounded-lg border-2 border-slate-200 cursor-pointer">同意</label>
+                                </div>
+                                <div>
+                                    <input type="radio" id="disagree_${index}" name="item_${index}" value="disagree" class="sr-only choice-radio" required>
+                                    <label for="disagree_${index}" class="choice-label w-full flex items-center justify-center p-3 text-slate-600 bg-slate-100 rounded-lg border-2 border-slate-200 cursor-pointer">不同意</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                formBody.appendChild(questionCard);
+            });
+            
+            // 檢查表單並返回未作答的題目卡片
+            function validateForm() {
+                let unansweredCards = [];
+                for(let i = 0; i < indicators.length; i++) {
+                    const radioButtons = document.getElementsByName(`item_${i}`);
+                    if (!radioButtons[0].checked && !radioButtons[1].checked) {
+                        unansweredCards.push(document.getElementById(`card_${i}`));
+                    }
+                }
+                return unansweredCards;
+            }
+
+            // 更新進度條和錯誤狀態
+            function updateFormStatus() {
+                const totalItems = indicators.length;
+                const answeredItems = form.querySelectorAll('input[type="radio"]:checked').length;
+                const percentage = totalItems > 0 ? (answeredItems / totalItems) * 100 : 0;
+                
+                progressBar.style.width = percentage + '%';
+                progressText.textContent = `${answeredItems} / ${totalItems}`;
+
+                // 當使用者填答時，移除該題的錯誤提示
+                const unanswered = validateForm();
+                if (unanswered.length === 0 && !globalWarning.classList.contains('hidden')) {
+                    globalWarning.classList.add('hidden');
+                }
+            }
+
+            form.addEventListener('change', (event) => {
+                if(event.target.type === 'radio') {
+                    const card = event.target.closest('.bg-white');
+                    if(card.classList.contains('question-card-error')) {
+                        card.classList.remove('question-card-error');
+                    }
+                }
+                updateFormStatus();
+            });
+            updateFormStatus();
+
+            // 處理 Modal 彈出視窗
+            const modal = document.getElementById('alertModal');
+            const modalDialog = document.getElementById('modalDialog');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalMessage = document.getElementById('modalMessage');
+            const modalIcon = document.getElementById('modalIcon');
+            const modalActions = document.getElementById('modalActions');
+
+            function showAlert(type, title, message) {
+                modalTitle.textContent = title;
+                modalMessage.textContent = message;
+                modalActions.innerHTML = ''; // 清空舊按鈕
+
+                if (type === 'success' || type === 'download') {
+                    modalIcon.innerHTML = `<svg class="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
+                    modalIcon.className = 'mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100';
+                } else if (type === 'error') {
+                    modalIcon.innerHTML = `<svg class="w-10 h-10 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" /></svg>`;
+                    modalIcon.className = 'mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100';
+                }
+                
+                if (type === 'download') {
+                    modalActions.innerHTML = `
+                        <button id="downloadZipBtn" class="w-full px-4 py-2 bg-sky-600 text-white text-base font-medium rounded-md shadow-sm hover:bg-sky-700 focus:outline-none focus:ring-2 ring-offset-2 ring-sky-500">
+                            下載壓縮檔 (.zip)
+                        </button>
+                    `;
+                }
+                
+                const closeButton = document.createElement('button');
+                closeButton.id = 'closeModalButton';
+                closeButton.textContent = type === 'download' ? '完成' : '關閉';
+                closeButton.className = 'w-full px-4 py-2 bg-slate-500 text-white text-base font-medium rounded-md shadow-sm hover:bg-slate-600 focus:outline-none focus:ring-2 ring-offset-2 ring-slate-400';
+                modalActions.appendChild(closeButton);
+
+                closeButton.addEventListener('click', hideAlert);
+                if (type === 'download') {
+                    document.getElementById('downloadZipBtn').addEventListener('click', handleDownloadZIP);
+                }
+
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    modal.classList.remove('opacity-0');
+                    modalDialog.classList.remove('scale-95', 'opacity-0');
+                    modalDialog.classList.add('scale-100', 'opacity-100');
+                }, 10);
+            }
+
+            function hideAlert() {
+                modalDialog.classList.remove('scale-100', 'opacity-100');
+                modalDialog.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    if(modal.dataset.resetForm === 'true') {
+                        form.reset();
+                        updateFormStatus();
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        delete modal.dataset.resetForm;
+                    }
+                }, 300);
+            }
+
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) hideAlert();
+            });
+            
+            async function handleDownloadZIP() {
+                const button = document.getElementById('downloadZipBtn');
+                button.disabled = true;
+                button.textContent = '打包中...';
+                
+                try {
+                    const results = JSON.parse(modal.dataset.results);
+                    const zip = new JSZip();
+
+                    // 1. 生成 TXT 內容
+                    let txtContent = `問卷主題：${results.title}\n`;
+                    txtContent += `填答時間：${results.timestamp}\n`;
+                    txtContent += '------------------------------------\n\n';
+                    results.responses.forEach((item, index) => {
+                        const responseText = item.response === 'agree' ? '同意' : '不同意';
+                        txtContent += `${index + 1}. ${item.indicator}: ${responseText}\n`;
+                    });
+                    zip.file("問卷結果.txt", txtContent);
+
+                    // 2. 生成 PNG 內容
+                    const outputArea = document.getElementById('png-output-area');
+                    let pngContent = `<div class="bg-gradient-to-br from-slate-50 to-sky-100 p-8">
+                        <div class="bg-white p-6 rounded-xl shadow-2xl">
+                            <h2 class="text-xl font-bold text-sky-800 text-center" style="font-family: 'Noto Sans TC', sans-serif;">${results.title}</h2>
+                            <p class="text-center text-sm text-slate-500 mt-2">填答時間：${results.timestamp}</p>
+                            <hr class="my-4">
+                            <ul class="space-y-2 text-base">`;
+                    results.responses.forEach((item, index) => {
+                        const responseText = item.response === 'agree' ? '同意' : '不同意';
+                        const responseColor = item.response === 'agree' ? 'text-green-600' : 'text-red-600';
+                        pngContent += `<li class="flex justify-between items-center p-2 rounded-md ${index % 2 === 0 ? 'bg-slate-50' : ''}">
+                                        <span class="text-slate-700" style="font-family: 'Noto Sans TC', sans-serif;">${index + 1}. ${item.indicator}</span>
+                                        <span class="font-semibold ${responseColor}" style="font-family: 'Noto Sans TC', sans-serif;">${responseText}</span>
+                                    </li>`;
+                    });
+                    pngContent += `</ul></div></div>`;
+                    outputArea.innerHTML = pngContent;
+
+                    const canvas = await html2canvas(outputArea.firstElementChild, { scale: 2, useCORS: true, logging: false });
+                    const pngData = canvas.toDataURL('image/png').split(',')[1]; // 只取 base64 部分
+                    zip.file("問卷結果.png", pngData, { base64: true });
+                    
+                    outputArea.innerHTML = ''; // 清理
+
+                    // 3. 生成並下載 ZIP
+                    const zipBlob = await zip.generateAsync({ type: "blob" });
+                    const url = URL.createObjectURL(zipBlob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = '影響空軍修護人員離職因素研究-信效度檢測結果.zip';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+
+                } catch (error) {
+                    console.error('打包或下載失敗!', error);
+                    alert("檔案打包失敗，請稍後再試。");
+                } finally {
+                    button.disabled = false;
+                    button.textContent = '下載壓縮檔 (.zip)';
+                }
+            }
+
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+                // 清除舊的錯誤提示
+                document.querySelectorAll('.question-card-error').forEach(card => card.classList.remove('question-card-error'));
+                
+                const unansweredCards = validateForm();
+
+                if (unansweredCards.length > 0) {
+                    // 顯示全域錯誤訊息
+                    globalWarning.textContent = `尚有 ${unansweredCards.length} 題未作答，請檢查下方紅框標示的題目。`;
+                    globalWarning.classList.remove('hidden');
+                    
+                    // 標示所有未作答的題目
+                    unansweredCards.forEach(card => {
+                        card.classList.add('question-card-error');
+                    });
+
+                    // 彈出提示視窗
+                    showAlert('error', '提交失敗', `請完成所有題目後再提交。`);
+                    
+                    // 滾動到第一個錯誤的題目
+                    unansweredCards[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    return;
+                }
+                
+                // 隱藏全域錯誤(如果存在)
+                if (!globalWarning.classList.contains('hidden')) {
+                    globalWarning.classList.add('hidden');
+                }
+                
+                const results = {
+                    title: "『影響空軍修護人員離職因素之研究』信效度檢測問卷結果",
+                    timestamp: new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei'}),
+                    responses: []
+                };
+
+                for (let i = 0; i < indicators.length; i++) {
+                    results.responses.push({
+                        indicator: indicators[i],
+                        response: form.elements[`item_${i}`].value
+                    });
+                }
+                
+                console.log("問卷結果:", JSON.stringify(results, null, 2));
+                
+                modal.dataset.results = JSON.stringify(results);
+                modal.dataset.resetForm = 'true';
+                showAlert('download', '提交成功', '非常感謝您的參與！您的回覆已記錄，請點擊下方按鈕下載結果。');
+            });
+        });
+    </script>
+</body>
+</html>
